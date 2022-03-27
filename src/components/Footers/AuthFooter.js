@@ -17,7 +17,7 @@ const Login = () => {
                   href='https://www.creative-tim.com?ref=adr-auth-footer'
                   target='_blank'
                 >
-                  Creative Tim
+                  Ukeh Victor
                 </a>
               </div>
             </Col>
@@ -28,7 +28,7 @@ const Login = () => {
                     href='https://www.creative-tim.com?ref=adr-auth-footer'
                     target='_blank'
                   >
-                    Creative Tim
+                    Ukeh Victor
                   </NavLink>
                 </NavItem>
                 <NavItem>

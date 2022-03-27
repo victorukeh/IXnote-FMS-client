@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import {
   Badge,
   Card,
@@ -17,63 +16,56 @@ import {
   Row,
 } from 'reactstrap'
 import Header from 'components/Headers/Header.js'
-import Spinner from './examples/Spinner'
+import Spinner from '../examples/Spinner'
+import axios from 'axios'
 
-const Index = (props) => {
-  const [photos, setPhotos] = useState([])
+const Others = (props) => {
+  const [others, setOthers] = useState([])
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
   var day
   var sizeinMB
-  var i = 1
   let pageSize = 10
-  let pagesCount = Math.ceil(photos.length / pageSize)
+  let pagesCount = Math.ceil(others.length / pageSize)
   const handleClick = (e, index) => {
     e.preventDefault()
     setCurrentPage(index)
   }
-
   useEffect(() => {
     loadFiles()
   }, [])
 
   const loadFiles = async () => {
     setLoading(true)
-    const response = await axios.get('http://localhost:2000/photos')
+    const response = await axios.get('http://localhost:2000/others')
     setLoading(false)
-    if (response.data) setPhotos(response.data)
+    if (response.data) setOthers(response.data)
   }
 
   const deleteFile = async (id, name) => {
     const stringId = JSON.stringify(id)
     const final = stringId.replace(/"/g, '')
     const DeleteFile = await axios.delete(
-      'http://localhost:2000/image/' + final
+      'http://localhost:2000/others/' + final
     )
     if (!DeleteFile) return
-    setPhotos(photos.filter((photo) => photo._id !== id))
+    setOthers(others.filter((other) => other._id !== id))
     const log = await axios.post(
       'http://localhost:2000/log?task=deleted&color=red&file=' + name
     )
     if (!log) return
   }
 
-  const reverseDate = ({ photo }) => {
-    let date = photo.uploadDate.split('T')[0]
+  const reverseDate = ({ others }) => {
+    let date = others.uploadDate.split('T')[0]
     return date
   }
 
-  const downloadFile = async (name) => {
-    const log = await axios.post(
-      'http://localhost:2000/log?task=downloaded&color=green&file=' + name
-    )
-    if (!log) return
-  }
-
-  const getSize = ({ photo }) => {
-    let size = photo.length
+  const getSize = ({ others }) => {
+    let size = others.length
     let newSize = size / 1000
     if (newSize > 1000) {
+      newSize = size / 1000000
       sizeinMB = true
     } else {
       sizeinMB = false
@@ -81,8 +73,8 @@ const Index = (props) => {
     return newSize.toFixed(2)
   }
 
-  const splitTime = ({ photo }) => {
-    let date = photo.uploadDate.split('T')[1]
+  const splitTime = ({ others }) => {
+    let date = others.uploadDate.split('T')[1]
     let time = date.split('.')[0]
     let hour = time.split(':')[0]
     let min = time.split(':')[1]
@@ -107,7 +99,9 @@ const Index = (props) => {
             <div className='col'>
               <Card className='bg-default shadow'>
                 <CardHeader className='bg-transparent border-0'>
-                  <h3 className='text-white mb-0'>All Identified Images</h3>
+                  <h3 className='text-white mb-0'>
+                    All Identified Others Files
+                  </h3>
                 </CardHeader>
                 <Table
                   className='align-items-center table-dark table-flush'
@@ -125,15 +119,15 @@ const Index = (props) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {photos
+                    {others
                       .slice(
                         currentPage * pageSize,
                         (currentPage + 1) * pageSize
                       )
-                      .map((photo) => (
-                        <tr key={photo._id}>
+                      .map((others, i) => (
+                        <tr key={others._id}>
                           <th scope='row'>
-                            <span className='mb-0 text-sm'>{i++}</span>
+                            <span className='mb-0 text-sm'>{i + 1}</span>
                           </th>
                           <td>
                             <span
@@ -147,12 +141,12 @@ const Index = (props) => {
                                 id='tooltip742438047'
                                 onClick={(e) => e.preventDefault()}
                               >
-                                {photo.filename}
+                                {others.filename}
                               </a>
                             </span>
                           </td>
                           <td>
-                            {getSize({ photo })}{' '}
+                            {getSize({ others })}{' '}
                             {sizeinMB === true ? (
                               <span
                                 style={{ color: 'cyan' }}
@@ -172,19 +166,19 @@ const Index = (props) => {
                           <td>
                             <Badge color='' className='badge-dot mr-4'>
                               <i className='bg-success' />
-                              {reverseDate({ photo })}
+                              {reverseDate({ others })}
                             </Badge>
                           </td>
                           <td>
                             <Badge color='' className='badge-dot mr-4'>
                               <i className='bg-warning' />
-                              {splitTime({ photo })}{' '}
+                              {splitTime({ others })}{' '}
                               {day === true ? 'PM' : 'AM'}
                             </Badge>
                           </td>
                           <td>
                             <span className='mb-0 text-sm'>
-                              {photo.contentType.split('/')[1]}
+                              {others.contentType.split('/')[1]}
                             </span>
                           </td>
                           <td className='text-right'>
@@ -203,26 +197,19 @@ const Index = (props) => {
                                 className='dropdown-menu-arrow'
                                 right
                               >
-                                
-                                  <DropdownItem
-                                    href='#pablo'
-                                    onClick={(e) => e.preventDefault()}
-                                  >
-                                    Rename
-                                  </DropdownItem>
-                                
-                                
-                                  <DropdownItem
-                                    onClick={() =>
-                                      deleteFile(photo._id, photo.filename)
-                                    }
-                                  >
-                                    Delete
-                                  </DropdownItem>
-                               
                                 <DropdownItem
-                                  onClick={() => downloadFile(photo.filename)}
-                                  href={`http://localhost:2000/download/${photo.filename}`}
+                                  href='#pablo'
+                                  onClick={(e) => e.preventDefault()}
+                                >
+                                  Rename
+                                </DropdownItem>
+                                <DropdownItem
+                                  onClick={() => deleteFile(others._id, others.filename)}
+                                >
+                                  Delete
+                                </DropdownItem>
+                                <DropdownItem
+                                  href={`http://localhost:2000/download/${others.filename}`}
                                 >
                                   Download
                                 </DropdownItem>
@@ -239,12 +226,9 @@ const Index = (props) => {
                       className='pagination justify-content-end mb-0'
                       listClassName='justify-content-end mb-0'
                     >
-                      <PaginationItem
-                        disabled={currentPage <= 0}
-                      >
+                      <PaginationItem disabled={currentPage <= 0}>
                         <PaginationLink
                           href='#pablo'
-                          // tabIndex='-1'
                           onClick={(e) => handleClick(e, currentPage - 1)}
                         >
                           <i className='fas fa-angle-left' />
@@ -261,7 +245,7 @@ const Index = (props) => {
                           </PaginationLink>
                         </PaginationItem>
                       ))}
-                       <PaginationItem disabled={currentPage >= pagesCount - 1}>
+                      <PaginationItem disabled={currentPage >= pagesCount - 1}>
                         <PaginationLink
                           href='#pablo'
                           onClick={(e) => handleClick(e, currentPage + 1)}
@@ -282,4 +266,4 @@ const Index = (props) => {
   )
 }
 
-export default Index
+export default Others

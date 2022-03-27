@@ -1,0 +1,31 @@
+.container__hold{
+    padding-left: 15%;
+    position: absolute;
+    width: 87%;
+}
+
+.form__group{
+    width: 87%
+}
+
+.result{
+    text-decoration: none
+}
+
+.result__lists{
+    cursor: pointer;
+    color: white;
+    padding-top: 1%;
+    list-style: none 
+}
+
+.result__container{
+    position: inherit;
+    z-index: 1000;
+    width: 68%;
+    opacity: 0.9;
+    border-radius: 3px;
+    margin-left: 2%;
+    margin-right: 2%;
+    box-shadow: 2px 8px rgba(0, 0 ,0 , 0.26)
+}

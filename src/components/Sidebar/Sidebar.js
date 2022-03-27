@@ -1,22 +1,15 @@
 /*eslint-disable*/
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink as NavLinkRRD, Link } from 'react-router-dom'
 // nodejs library to set properties for components
 import { PropTypes } from 'prop-types'
-
-// reactstrap components
 import {
   Button,
-  Card,
-  CardHeader,
-  CardBody,
-  CardTitle,
   Collapse,
   DropdownMenu,
   DropdownItem,
   UncontrolledDropdown,
   DropdownToggle,
-  FormGroup,
   Form,
   Input,
   InputGroupAddon,
@@ -28,17 +21,55 @@ import {
   NavItem,
   NavLink,
   Nav,
-  Progress,
-  Table,
   Container,
   Row,
   Col,
+  Badge,
 } from 'reactstrap'
-
-var ps
-
+import { useDataLayerValue } from 'DataLayer'
+import axios from 'axios'
+import useWindowSize from './useWindowSize'
 const Sidebar = (props) => {
   const [collapseOpen, setCollapseOpen] = useState()
+  const [{ file, searchQuery, items }, dispatch] = useDataLayerValue()
+  const size = useWindowSize()
+
+  useEffect(() => {
+    if (size.width > 784) {
+      dispatch({
+        type: 'SET_SEARCHQUERY',
+        searchQuery: null,
+      })
+    }
+  }, [size.width])
+
+  useEffect(() => {
+    if (collapseOpen === false) {
+      dispatch({
+        type: 'SET_SEARCHQUERY',
+        searchQuery: null,
+      })
+    }
+  }, [collapseOpen])
+  const setFile = async (name) => {
+    const response = await axios.get('http://localhost:2000/' + name)
+    if (!response) return
+    dispatch({
+      type: 'SET_FILE',
+      file: response.data[0],
+    })
+    console.log(file)
+    dispatch({
+      type: 'SET_ITEMS',
+      items: [],
+    })
+    closeCollapse()
+    dispatch({
+      type: 'SET_WAIT',
+      wait: true,
+    })
+  }
+
   // verifies if routeName is the one active (in browser input)
   const activeRoute = (routeName) => {
     return props.location.pathname.indexOf(routeName) > -1 ? 'active' : ''
@@ -99,6 +130,7 @@ const Sidebar = (props) => {
         >
           <span className='navbar-toggler-icon' />
         </button>
+
         {/* Brand */}
         {logo ? (
           <NavbarBrand className='pt-0' {...navbarBrandProps}>
@@ -112,30 +144,12 @@ const Sidebar = (props) => {
         {/* User */}
         <Nav className='align-items-center d-md-none'>
           <UncontrolledDropdown nav>
-            <DropdownToggle nav className='nav-link-icon'>
-              <i className='ni ni-bell-55' />
-            </DropdownToggle>
-            <DropdownMenu
-              aria-labelledby='navbar-default_dropdown_1'
-              className='dropdown-menu-arrow'
-              right
-            >
-              <DropdownItem>Action</DropdownItem>
-              <DropdownItem>Another action</DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem>Something else here</DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
-          <UncontrolledDropdown nav>
             <DropdownToggle nav>
               <Media className='align-items-center'>
                 <span className='avatar avatar-sm rounded-circle'>
                   <img
                     alt='...'
-                    src={
-                      require('../../assets/img/theme/team-1-800x800.jpg')
-                        .default
-                    }
+                    src={require('../../assets/img/images/149071.png').default}
                   />
                 </span>
               </Media>
@@ -143,27 +157,6 @@ const Sidebar = (props) => {
             <DropdownMenu className='dropdown-menu-arrow' right>
               <DropdownItem className='noti-title' header tag='div'>
                 <h6 className='text-overflow m-0'>Welcome!</h6>
-              </DropdownItem>
-              <DropdownItem to='/admin/user-profile' tag={Link}>
-                <i className='ni ni-single-02' />
-                <span>My profile</span>
-              </DropdownItem>
-              <DropdownItem to='/admin/user-profile' tag={Link}>
-                <i className='ni ni-settings-gear-65' />
-                <span>Settings</span>
-              </DropdownItem>
-              <DropdownItem to='/admin/user-profile' tag={Link}>
-                <i className='ni ni-calendar-grid-58' />
-                <span>Activity</span>
-              </DropdownItem>
-              <DropdownItem to='/admin/user-profile' tag={Link}>
-                <i className='ni ni-support-16' />
-                <span>Support</span>
-              </DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem href='#pablo' onClick={(e) => e.preventDefault()}>
-                <i className='ni ni-user-run' />
-                <span>Logout</span>
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
@@ -206,6 +199,13 @@ const Sidebar = (props) => {
                 className='form-control-rounded form-control-prepended'
                 placeholder='Search'
                 type='search'
+                name='s'
+                onChange={(e) =>
+                  dispatch({
+                    type: 'SET_SEARCHQUERY',
+                    searchQuery: e.target.value,
+                  })
+                }
               />
               <InputGroupAddon addonType='prepend'>
                 <InputGroupText>
@@ -215,32 +215,74 @@ const Sidebar = (props) => {
             </InputGroup>
           </Form>
           {/* Navigation */}
-          <Nav navbar>{createLinks(routes)}</Nav>
           {/* Divider */}
           <hr className='my-3' />
           {/* Heading */}
-          <h6 className='navbar-heading text-muted'>Documentation</h6>
-          {/* Navigation */}
-          <Nav className='mb-md-3' navbar>
-            <NavItem>
-              <NavLink href='https://demos.creative-tim.com/argon-dashboard-react/#/documentation/overview?ref=adr-admin-sidebar'>
-                <i className='ni ni-spaceship' />
-                Getting started
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href='https://demos.creative-tim.com/argon-dashboard-react/#/documentation/colors?ref=adr-admin-sidebar'>
-                <i className='ni ni-palette' />
-                Foundation
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href='https://demos.creative-tim.com/argon-dashboard-react/#/documentation/alerts?ref=adr-admin-sidebar'>
-                <i className='ni ni-ui-04' />
-                Components
-              </NavLink>
-            </NavItem>
+          {searchQuery === null && (
+            <h6 className='navbar-heading text-muted'>Files</h6>
+          )}
+          <Nav navbar>
+            {size.width < 784 &&
+              collapseOpen === true &&
+              searchQuery &&
+              items.slice(0, 5).map((item) => {
+                if (!item) return
+                return (
+                  <>
+                    <NavItem key={item._id}>
+                      <NavLink
+                        to='/admin/info'
+                        tag={NavLinkRRD}
+                        onClick={() => {
+                          setFile(item.filename)
+                          closeCollapse
+                        }}
+                      >
+                        {item.filename}
+                      </NavLink>
+                    </NavItem>
+                  </>
+                )
+              })}
+            {searchQuery === null && createLinks(routes)}
           </Nav>
+          {/* Divider */}
+          {searchQuery === null && <hr className='my-3' />}
+          {searchQuery === null && (
+            <h6 className='navbar-heading text-muted'>Actions</h6>
+          )}
+          {/* Navigation */}
+
+          {searchQuery === null && (
+            <Nav className='mb-md-3' navbar>
+              <NavItem>
+                <NavLink
+                  to='/logs/all'
+                  tag={NavLinkRRD}
+                  onClick={closeCollapse}
+                  activeClassName='active'
+                >
+                  <i className='ni ni-bold-up' />
+                  logs
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink
+                  tag={NavLinkRRD}
+                  className='nav-link'
+                  id='RouterNavLink'
+                  to='/admin/upload'
+                >
+                  <Button color='primary' type='button'>
+                    <span>Upload File</span>
+                    <Badge className='badge-white'>
+                      <i className='ni ni-bold-up' />
+                    </Badge>
+                  </Button>
+                </NavLink>
+              </NavItem>
+            </Nav>
+          )}
         </Collapse>
       </Container>
     </Navbar>

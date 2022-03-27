@@ -1,60 +1,61 @@
-import Index from "views/Index.js";
-import Profile from "views/examples/Profile.js";
-import Maps from "views/examples/Maps.js";
-import Register from "views/examples/Register.js";
-import Login from "views/examples/Login.js";
-import Tables from "views/examples/Tables.js";
-import Icons from "views/examples/Icons.js";
+import Index from 'views/Index.js'
+import Videos from 'views/examples/Videos.js'
+import Audio from 'views/examples/Audio.js'
+import Others from 'views/examples/Others.js'
+import JS from 'views/examples/JsEcma.js'
+import Pdf from 'views/examples/Pdfs'
+import Microsoft from 'views/examples/Microsoft.js'
 
 var routes = [
   {
-    path: "/index",
-    name: "Images",
-    icon: "ni ni-album-2 text-primary",
+    path: '/index',
+    name: 'Images',
+    icon: 'ni ni-album-2 text-primary',
     component: Index,
-    layout: "/admin",
+    layout: '/admin',
   },
   {
-    path: "/icons",
-    name: "Icons",
-    icon: "ni ni-planet text-blue",
-    component: Icons,
-    layout: "/admin",
+    path: '/videos',
+    name: 'Videos',
+    icon: 'ni ni-tv-2  text-orange',
+    component: Videos,
+    layout: '/admin',
   },
   {
-    path: "/maps",
-    name: "Maps",
-    icon: "ni ni-pin-3 text-orange",
-    component: Maps,
-    layout: "/admin",
+    path: '/audio',
+    name: 'Audio',
+    icon: 'ni ni-button-play text-blue',
+    component: Audio,
+    layout: '/admin',
   },
   {
-    path: "/user-profile",
-    name: "User Profile",
-    icon: "ni ni-single-02 text-yellow",
-    component: Profile,
-    layout: "/admin",
+    path: '/pdfs',
+    name: 'PDFs',
+    icon: 'ni ni-folder-17 text-blue',
+    component: Pdf,
+    layout: '/admin',
   },
   {
-    path: "/tables",
-    name: "Tables",
-    icon: "ni ni-bullet-list-67 text-red",
-    component: Tables,
-    layout: "/admin",
+    path: '/docs',
+    name: 'Microsoft Docs',
+    icon: 'ni ni-collection text-info',
+    component: Microsoft,
+    layout: '/admin',
   },
   {
-    path: "/login",
-    name: "Login",
-    icon: "ni ni-key-25 text-info",
-    component: Login,
-    layout: "/auth",
+    path: '/jsecma',
+    name: 'JS/Ecmascript',
+    icon: 'ni ni-collection text-success',
+    component: JS,
+    layout: '/admin',
   },
   {
-    path: "/register",
-    name: "Register",
-    icon: "ni ni-circle-08 text-pink",
-    component: Register,
-    layout: "/auth",
+    path: '/others',
+    name: 'Others',
+    icon: 'ni ni-collection text-info',
+    component: Others,
+    layout: '/admin',
   },
-];
-export default routes;
+]
+export default routes
+// ni ni-bag-17
