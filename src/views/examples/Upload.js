@@ -1,15 +1,21 @@
-import React, { useState } from 'react'
+import React, { useState} from 'react'
 import axios from 'axios'
-import { Container, Row, Card, CardHeader, Button } from 'reactstrap'
+import { Container, Row, Card, CardHeader, Button, Alert } from 'reactstrap'
 import Header from 'components/Headers/Header.js'
 import './upload.css'
+import './alert.css'
 
 const Upload = () => {
   const [selectedFile, setSelectedFile] = useState(undefined)
   const [progress, setProgress] = useState(0)
   const [message, setMessage] = useState('')
-
-  console.log(message)
+  const [show, setShow] = useState(true)
+  const displayMessage = () => {
+    const timer = setTimeout(() => {
+      setShow(false)
+    }, 4000)
+    return () => clearTimeout(timer)
+  }
 
   function onChangeHandler(event) {
     setSelectedFile(event.target.files[0])
@@ -26,8 +32,9 @@ const Upload = () => {
         },
       })
       .then(async (res) => {
-        console.log(selectedFile)
         setMessage('File Uploaded Successfully')
+        displayMessage()
+        setSelectedFile(undefined)
         const log = await axios.post(
           'http://localhost:2000/log?task=uploaded&color=blue&file=' +
             selectedFile.name
@@ -38,11 +45,27 @@ const Upload = () => {
         setProgress(0)
         setMessage('Could not upload the file!')
         setSelectedFile(undefined)
+        displayMessage()
       })
   }
 
   return (
     <>
+      {show && message === 'File Uploaded Successfully' && (
+        <div className='div'>
+          <Alert color='success' className='alert'>
+            <strong>Success!</strong> {message}
+          </Alert>
+        </div>
+      )}
+
+      {show && message === 'Could not upload the file!' && (
+        <div className='div'>
+          <Alert color='warning' className='alert'>
+            <strong>Warning!</strong> {message}
+          </Alert>
+        </div>
+      )}
       <Header />
       <Container className='mt--8' fluid>
         <Row className='mt-5'>

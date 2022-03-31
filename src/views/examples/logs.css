@@ -1,0 +1,11 @@
+.log{
+    padding-top: 4vh;
+    padding-bottom: 2vh;
+}
+
+.log__content{
+    display: flex; 
+    justify-content: space-between; 
+    margin-left: 3%; 
+    margin-right: 3%;
+}

@@ -12,6 +12,7 @@
     text-decoration: none
 }
 
+.result__lists:hover { color: #00FF00; }
 .result__lists{
     cursor: pointer;
     color: white;

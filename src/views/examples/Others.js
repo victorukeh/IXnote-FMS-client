@@ -14,23 +14,82 @@ import {
   Table,
   Container,
   Row,
+  Alert,
+  Col,
+  Form,
+  FormGroup,
+  Input,
+  Button,
 } from 'reactstrap'
 import Header from 'components/Headers/Header.js'
 import Spinner from '../examples/Spinner'
 import axios from 'axios'
+import './alert.css'
+import './rename.css'
 
 const Others = (props) => {
   const [others, setOthers] = useState([])
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
+  const [message, setMessage] = useState('')
+  const [show, setShow] = useState(true)
+  const [rename, setRename] = useState(false)
+  const [id, setId] = useState('')
+  const [name, setName] = useState('')
+  const [newFilename, setNewFilename] = useState('')
   var day
   var sizeinMB
   let pageSize = 10
   let pagesCount = Math.ceil(others.length / pageSize)
+
+  const setRenameOnClick = (id, name) => {
+    setRename(true)
+    setId(id)
+    setName(name)
+  }
+
+  const renameFile = async () => {
+    const response = await axios.put(
+      `http://localhost:2000/edit?id=${id}&name=${newFilename}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    if (response === null) {
+      setMessage('Something went wrong')
+      displayMessage()
+      return
+    }
+    loadFiles()
+    setMessage('File updated successfully')
+    displayMessage()
+    setRename(false)
+    const log = await axios.post(
+      'http://localhost:2000/log?task=updated&color=brown&file=' + name
+    )
+    if (!log) return
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    renameFile()
+  }
+
   const handleClick = (e, index) => {
     e.preventDefault()
     setCurrentPage(index)
   }
+
+  const displayMessage = () => {
+    const timer = setTimeout(() => {
+      setShow(false)
+      setMessage('')
+    }, 4000)
+    return () => clearTimeout(timer)
+  }
+
   useEffect(() => {
     loadFiles()
   }, [])
@@ -50,6 +109,8 @@ const Others = (props) => {
     )
     if (!DeleteFile) return
     setOthers(others.filter((other) => other._id !== id))
+    setMessage('File has been deleted')
+    displayMessage()
     const log = await axios.post(
       'http://localhost:2000/log?task=deleted&color=red&file=' + name
     )
@@ -90,6 +151,28 @@ const Others = (props) => {
 
   return (
     <>
+      {show && message === 'File has been deleted' && (
+        <div className='div'>
+          <Alert color='success' className='alert'>
+            <strong>Success!</strong> {message}
+          </Alert>
+        </div>
+      )}
+      {show && message === 'File updated successfully' && (
+        <div className='div'>
+          <Alert color='success' className='alert'>
+            <strong>Success!</strong> {message}
+          </Alert>
+        </div>
+      )}
+
+      {show && message === 'Something went wrong' && (
+        <div className='div'>
+          <Alert color='warning' className='alert'>
+            <strong>Warning!</strong> {message}
+          </Alert>
+        </div>
+      )}
       <Header />
       {/* Page content */}
       {loading === true && <Spinner className='my-4' />}
@@ -99,9 +182,7 @@ const Others = (props) => {
             <div className='col'>
               <Card className='bg-default shadow'>
                 <CardHeader className='bg-transparent border-0'>
-                  <h3 className='text-white mb-0'>
-                    All Identified Others Files
-                  </h3>
+                  <h3 className='text-white mb-0'>Special Files</h3>
                 </CardHeader>
                 <Table
                   className='align-items-center table-dark table-flush'
@@ -199,12 +280,19 @@ const Others = (props) => {
                               >
                                 <DropdownItem
                                   href='#pablo'
-                                  onClick={(e) => e.preventDefault()}
+                                  onClick={() =>
+                                    setRenameOnClick(
+                                      others._id,
+                                      others.filename
+                                    )
+                                  }
                                 >
                                   Rename
                                 </DropdownItem>
                                 <DropdownItem
-                                  onClick={() => deleteFile(others._id, others.filename)}
+                                  onClick={() =>
+                                    deleteFile(others._id, others.filename)
+                                  }
                                 >
                                   Delete
                                 </DropdownItem>
@@ -260,6 +348,33 @@ const Others = (props) => {
               </Card>
             </div>
           </Row>
+          {rename && (
+            <div className='bg-default shadow rename'>
+              <Form onSubmit={handleSubmit}>
+                <Row>
+                  <Col md='4'>
+                    <FormGroup>
+                      <Input disabled placeholder={name} type='text' />
+                    </FormGroup>
+                  </Col>
+                  <Col md='4'>
+                    <FormGroup>
+                      <Input
+                        placeholder='new name'
+                        type='text'
+                        onChange={(e) => setNewFilename(e.target.value)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col md='4'>
+                    <Button color='primary' type='submit' className='button'>
+                      Rename
+                    </Button>
+                  </Col>
+                </Row>
+              </Form>
+            </div>
+          )}
         </Container>
       )}
     </>

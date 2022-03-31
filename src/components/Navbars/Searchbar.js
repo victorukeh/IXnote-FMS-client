@@ -10,13 +10,12 @@ import {
   InputGroup,
 } from 'reactstrap'
 import { useDataLayerValue } from 'DataLayer'
-import { NavLink as NavLinkRRD, Link } from 'react-router-dom'
+import { NavLink as NavLinkRRD } from 'react-router-dom'
 import axios from 'axios'
 import './searchbar.css'
 const SearchBar = () => {
   const [{ posts, file }, dispatch] = useDataLayerValue()
-
-  const setFile = async(name) => {
+  const setFile = async (name) => {
     const response = await axios.get('http://localhost:2000/' + name)
     console.log(response)
     if (!response) return
@@ -27,11 +26,11 @@ const SearchBar = () => {
     console.log(file)
     dispatch({
       type: 'SET_POSTS',
-      posts: []
+      posts: [],
     })
     dispatch({
       type: 'SET_WAIT',
-      wait: true
+      wait: true,
     })
   }
   return (
@@ -48,29 +47,30 @@ const SearchBar = () => {
               placeholder='Search'
               type='text'
               name='s'
-              onChange={(e) => dispatch({
-                type: 'SET_QUERY',
-                query: e.target.value
-              })}
+              onChange={(e) =>
+                dispatch({
+                  type: 'SET_QUERY',
+                  query: e.target.value,
+                })
+              }
             />
           </InputGroup>
         </FormGroup>
       </Form>
-      
+
       <Nav className='result__container bg-gradient-primary d-none d-md-flex'>
         <NavItem className='result'>
-          {posts.slice(0, 5).map((post) => {
-            if (!post) return
+          {posts.slice(0, 7).map((post) => {
             return (
-            <NavLink
-              to='/admin/info'
-              className='result__lists'
-              tag={NavLinkRRD}
-              onClick={() => setFile(post.filename)}
-              key={post._id}
-            >
-              {post.filename}
-            </NavLink>
+              <NavLink
+                to='/admin/info'
+                className='result__lists'
+                tag={NavLinkRRD}
+                onClick={() => setFile(post.filename)}
+                key={post._id}
+              >
+                {post.filename}
+              </NavLink>
             )
           })}
         </NavItem>

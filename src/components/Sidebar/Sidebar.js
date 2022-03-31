@@ -219,7 +219,7 @@ const Sidebar = (props) => {
           <hr className='my-3' />
           {/* Heading */}
           {searchQuery === null && (
-            <h6 className='navbar-heading text-muted'>Files</h6>
+            <h6 className='navbar-heading text-muted'>Menu</h6>
           )}
           <Nav navbar>
             {size.width < 784 &&
@@ -246,12 +246,6 @@ const Sidebar = (props) => {
               })}
             {searchQuery === null && createLinks(routes)}
           </Nav>
-          {/* Divider */}
-          {searchQuery === null && <hr className='my-3' />}
-          {searchQuery === null && (
-            <h6 className='navbar-heading text-muted'>Actions</h6>
-          )}
-          {/* Navigation */}
 
           {searchQuery === null && (
             <Nav className='mb-md-3' navbar>
@@ -262,7 +256,7 @@ const Sidebar = (props) => {
                   onClick={closeCollapse}
                   activeClassName='active'
                 >
-                  <i className='ni ni-bold-up' />
+                  <i className='ni ni-compass-04 text-blue' />
                   logs
                 </NavLink>
               </NavItem>

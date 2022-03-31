@@ -1,0 +1,13 @@
+.div{
+    display: flex;
+    justify-content: right;
+    transition-timing-function: ease
+}
+
+.alert{
+    z-index: 1000;
+    position: absolute;
+    width: 40%;
+    margin-top: 7%;
+    margin-left: 2%;
+}

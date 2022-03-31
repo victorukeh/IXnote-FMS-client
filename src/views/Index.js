@@ -15,22 +15,79 @@ import {
   Table,
   Container,
   Row,
+  Alert,
+  Col,
+  Form,
+  FormGroup,
+  Input,
+  Button,
 } from 'reactstrap'
 import Header from 'components/Headers/Header.js'
 import Spinner from './examples/Spinner'
+import './examples/alert.css'
+import './examples/rename.css'
 
 const Index = (props) => {
   const [photos, setPhotos] = useState([])
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
+  const [message, setMessage] = useState('')
+  const [show, setShow] = useState(true)
+  const [rename, setRename] = useState(false)
+  const [id, setId] = useState('')
+  const [name, setName] = useState('')
+  const [newFilename, setNewFilename] = useState('')
   var day
   var sizeinMB
-  var i = 1
   let pageSize = 10
   let pagesCount = Math.ceil(photos.length / pageSize)
+
+  const setRenameOnClick = (id, name) => {
+    setRename(true)
+    setId(id)
+    setName(name)
+  }
+
+  const renameFile = async () => {
+    const response = await axios.put(
+      `http://localhost:2000/edit?id=${id}&name=${newFilename}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    if (response === null) {
+      setMessage('Something went wrong')
+      displayMessage()
+      return
+    }
+    loadFiles()
+    setMessage('Image updated successfully')
+    displayMessage()
+    setRename(false)
+    const log = await axios.post(
+      'http://localhost:2000/log?task=updated&color=brown&file=' + name
+    )
+    if (!log) return
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    renameFile()
+  }
+
   const handleClick = (e, index) => {
     e.preventDefault()
     setCurrentPage(index)
+  }
+
+  const displayMessage = () => {
+    const timer = setTimeout(() => {
+      setShow(false)
+      setMessage('')
+    }, 2500)
+    return () => clearTimeout(timer)
   }
 
   useEffect(() => {
@@ -52,6 +109,8 @@ const Index = (props) => {
     )
     if (!DeleteFile) return
     setPhotos(photos.filter((photo) => photo._id !== id))
+    setMessage('Image has been deleted')
+    displayMessage()
     const log = await axios.post(
       'http://localhost:2000/log?task=deleted&color=red&file=' + name
     )
@@ -75,6 +134,7 @@ const Index = (props) => {
     let newSize = size / 1000
     if (newSize > 1000) {
       sizeinMB = true
+      newSize = size / 1000000
     } else {
       sizeinMB = false
     }
@@ -98,6 +158,29 @@ const Index = (props) => {
 
   return (
     <>
+      {show && message === 'Image has been deleted' && (
+        <div className='div'>
+          <Alert color='success' className='alert'>
+            <strong>Success!</strong> {message}
+          </Alert>
+        </div>
+      )}
+      {show && message === 'Image updated successfully' && (
+        <div className='div'>
+          <Alert color='success' className='alert'>
+            <strong>Success!</strong> {message}
+          </Alert>
+        </div>
+      )}
+
+      {show && message === 'Something went wrong' && (
+        <div className='div'>
+          <Alert color='warning' className='alert'>
+            <strong>Warning!</strong> {message}
+          </Alert>
+        </div>
+      )}
+
       <Header />
       {/* Page content */}
       {loading === true && <Spinner className='my-4' />}
@@ -107,7 +190,7 @@ const Index = (props) => {
             <div className='col'>
               <Card className='bg-default shadow'>
                 <CardHeader className='bg-transparent border-0'>
-                  <h3 className='text-white mb-0'>All Identified Images</h3>
+                  <h3 className='text-white mb-0'>Photos, Gifs and ...</h3>
                 </CardHeader>
                 <Table
                   className='align-items-center table-dark table-flush'
@@ -130,10 +213,10 @@ const Index = (props) => {
                         currentPage * pageSize,
                         (currentPage + 1) * pageSize
                       )
-                      .map((photo) => (
+                      .map((photo, i) => (
                         <tr key={photo._id}>
                           <th scope='row'>
-                            <span className='mb-0 text-sm'>{i++}</span>
+                            <span className='mb-0 text-sm'>{i + 1}</span>
                           </th>
                           <td>
                             <span
@@ -203,23 +286,23 @@ const Index = (props) => {
                                 className='dropdown-menu-arrow'
                                 right
                               >
-                                
-                                  <DropdownItem
-                                    href='#pablo'
-                                    onClick={(e) => e.preventDefault()}
-                                  >
-                                    Rename
-                                  </DropdownItem>
-                                
-                                
-                                  <DropdownItem
-                                    onClick={() =>
-                                      deleteFile(photo._id, photo.filename)
-                                    }
-                                  >
-                                    Delete
-                                  </DropdownItem>
-                               
+                                <DropdownItem
+                                  href='#pablo'
+                                  onClick={() =>
+                                    setRenameOnClick(photo._id, photo.filename)
+                                  }
+                                >
+                                  Rename
+                                </DropdownItem>
+
+                                <DropdownItem
+                                  onClick={() =>
+                                    deleteFile(photo._id, photo.filename)
+                                  }
+                                >
+                                  Delete
+                                </DropdownItem>
+
                                 <DropdownItem
                                   onClick={() => downloadFile(photo.filename)}
                                   href={`http://localhost:2000/download/${photo.filename}`}
@@ -239,9 +322,7 @@ const Index = (props) => {
                       className='pagination justify-content-end mb-0'
                       listClassName='justify-content-end mb-0'
                     >
-                      <PaginationItem
-                        disabled={currentPage <= 0}
-                      >
+                      <PaginationItem disabled={currentPage <= 0}>
                         <PaginationLink
                           href='#pablo'
                           // tabIndex='-1'
@@ -261,7 +342,7 @@ const Index = (props) => {
                           </PaginationLink>
                         </PaginationItem>
                       ))}
-                       <PaginationItem disabled={currentPage >= pagesCount - 1}>
+                      <PaginationItem disabled={currentPage >= pagesCount - 1}>
                         <PaginationLink
                           href='#pablo'
                           onClick={(e) => handleClick(e, currentPage + 1)}
@@ -276,6 +357,34 @@ const Index = (props) => {
               </Card>
             </div>
           </Row>
+
+          {rename && (
+            <div className='bg-default shadow rename'>
+              <Form onSubmit={handleSubmit}>
+                <Row>
+                  <Col md='4'>
+                    <FormGroup>
+                      <Input disabled placeholder={name} type='text' />
+                    </FormGroup>
+                  </Col>
+                  <Col md='4'>
+                    <FormGroup>
+                      <Input
+                        placeholder='new name'
+                        type='text'
+                        onChange={(e) => setNewFilename(e.target.value)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col md='4'>
+                    <Button color='primary' type='submit' className='button'>
+                      Rename
+                    </Button>
+                  </Col>
+                </Row>
+              </Form>
+            </div>
+          )}
         </Container>
       )}
     </>
