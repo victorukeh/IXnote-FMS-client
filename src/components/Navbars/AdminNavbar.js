@@ -32,7 +32,7 @@ const AdminNavbar = (props) => {
       })
     dispatch({
       type: 'SET_POSTS',
-      posts: response.data,
+      posts: response.data.files,
     })
   }, [query])
 

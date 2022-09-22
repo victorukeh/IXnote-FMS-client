@@ -50,7 +50,7 @@ const JS = (props) => {
 
   const renameFile = async () => {
     const response = await axios.put(
-      `http://localhost:2000/edit?id=${id}&name=${newFilename}`,
+      `http://localhost:2000/edit?oldFilename=${name}&newFilename=${newFilename}`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ const JS = (props) => {
     const timer = setTimeout(() => {
       setShow(false)
       setMessage('')
-    }, 4000)
+    }, 3000)
     return () => clearTimeout(timer)
   }
 
@@ -98,14 +98,12 @@ const JS = (props) => {
     setLoading(true)
     const response = await axios.get('http://localhost:2000/jsecma')
     setLoading(false)
-    if (response.data) setJs(response.data)
+    if (response.data) setJs(response.data.files)
   }
 
   const deleteFile = async (id, name) => {
-    const stringId = JSON.stringify(id)
-    const final = stringId.replace(/"/g, '')
     const DeleteFile = await axios.delete(
-      'http://localhost:2000/jsecma/' + final
+      `http://localhost:2000/delete?filename=${name}`
     )
     if (!DeleteFile) return
     setJs(js.filter((jsd) => jsd._id !== id))
@@ -123,7 +121,7 @@ const JS = (props) => {
   }
 
   const getSize = ({ js }) => {
-    let size = js.length
+    let size = js.size
     let newSize = size / 1000
     if (newSize > 1000) {
       sizeinMB = true
@@ -135,7 +133,7 @@ const JS = (props) => {
   }
 
   const splitTime = ({ js }) => {
-    let date = js.uploadDate.split('T')[1]
+    let date = js.createdAt.split('T')[1]
     let time = date.split('.')[0]
     let hour = time.split(':')[0]
     let min = time.split(':')[1]
@@ -261,7 +259,7 @@ const JS = (props) => {
                           </td>
                           <td>
                             <span className='mb-0 text-sm'>
-                              {js.contentType.split('/')[1]}
+                              {js.type.split('/')[1]}
                             </span>
                           </td>
                           <td className='text-right'>

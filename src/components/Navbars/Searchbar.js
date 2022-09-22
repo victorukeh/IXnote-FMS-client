@@ -16,12 +16,12 @@ import './searchbar.css'
 const SearchBar = () => {
   const [{ posts, file }, dispatch] = useDataLayerValue()
   const setFile = async (name) => {
-    const response = await axios.get('http://localhost:2000/' + name)
+    const response = await axios.get('http://localhost:2000?filename=' + name)
     console.log(response)
     if (!response) return
     dispatch({
       type: 'SET_FILE',
-      file: response.data[0],
+      file: response.data.file[0],
     })
     console.log(file)
     dispatch({

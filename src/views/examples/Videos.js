@@ -135,7 +135,6 @@ const Videos = (props) => {
 
   const splitTime = ({ video }) => {
     let date = video.createdAt.split('T')[1]
-    console.log(date)
     let time = date.split('.')[0]
     let hour = time.split(':')[0]
     let min = time.split(':')[1]

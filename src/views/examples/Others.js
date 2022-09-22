@@ -50,7 +50,7 @@ const Others = (props) => {
 
   const renameFile = async () => {
     const response = await axios.put(
-      `http://localhost:2000/edit?id=${id}&name=${newFilename}`,
+      `http://localhost:2000/edit?oldFilename=${name}&newFilename=${newFilename}`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -98,14 +98,12 @@ const Others = (props) => {
     setLoading(true)
     const response = await axios.get('http://localhost:2000/others')
     setLoading(false)
-    if (response.data) setOthers(response.data)
+    if (response.data) setOthers(response.data.files)
   }
 
   const deleteFile = async (id, name) => {
-    const stringId = JSON.stringify(id)
-    const final = stringId.replace(/"/g, '')
     const DeleteFile = await axios.delete(
-      'http://localhost:2000/others/' + final
+      `http://localhost:2000/delete?filename=${name}`
     )
     if (!DeleteFile) return
     setOthers(others.filter((other) => other._id !== id))
@@ -118,12 +116,12 @@ const Others = (props) => {
   }
 
   const reverseDate = ({ others }) => {
-    let date = others.uploadDate.split('T')[0]
+    let date = others.createdAt.split('T')[0]
     return date
   }
 
   const getSize = ({ others }) => {
-    let size = others.length
+    let size = others.size
     let newSize = size / 1000
     if (newSize > 1000) {
       newSize = size / 1000000
@@ -135,7 +133,7 @@ const Others = (props) => {
   }
 
   const splitTime = ({ others }) => {
-    let date = others.uploadDate.split('T')[1]
+    let date = others.createdAt.split('T')[1]
     let time = date.split('.')[0]
     let hour = time.split(':')[0]
     let min = time.split(':')[1]
@@ -259,7 +257,7 @@ const Others = (props) => {
                           </td>
                           <td>
                             <span className='mb-0 text-sm'>
-                              {others.contentType.split('/')[1]}
+                              {others.type.split('/')[1]}
                             </span>
                           </td>
                           <td className='text-right'>

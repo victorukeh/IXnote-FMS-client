@@ -43,7 +43,7 @@ const FileInfo = () => {
 
   const renameFile = async () => {
     const response = await axios.put(
-      `http://localhost:2000/edit?id=${id}&name=${newFilename}`,
+      `http://localhost:2000/edit?oldFilename=${name}&newFilename=${newFilename}`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ const FileInfo = () => {
     const timer = setTimeout(() => {
       setShow(false)
       setMessage('')
-    }, 4000)
+    }, 3000)
     return () => clearTimeout(timer)
   }
 
@@ -79,12 +79,12 @@ const FileInfo = () => {
   }
 
   const reverseDate = ({ file }) => {
-    let date = file.uploadDate.split('T')[0]
+    let date = file.createdAt.split('T')[0]
     return date
   }
 
   const getSize = ({ file }) => {
-    let size = file.length
+    let size = file.size
     let newSize = size / 1000000
     if (newSize > 1000) {
       newSize = size / 1000000000
@@ -96,7 +96,7 @@ const FileInfo = () => {
   }
 
   const splitTime = ({ file }) => {
-    let date = file.uploadDate.split('T')[1]
+    let date = file.createdAt.split('T')[1]
     let time = date.split('.')[0]
     let hour = time.split(':')[0]
     let min = time.split(':')[1]
@@ -111,9 +111,7 @@ const FileInfo = () => {
   }
 
   const deleteFile = async (id, name) => {
-    const stringId = JSON.stringify(id)
-    const final = stringId.replace(/"/g, '')
-    const DeleteFile = await axios.delete('http://localhost:2000/' + final)
+    const DeleteFile = await axios.delete(`http://localhost:2000/delete?filename=${name}`)
     if (!DeleteFile) return
     history.push('/admin/index')
     const log = await axios.post(
@@ -124,7 +122,7 @@ const FileInfo = () => {
 
   const loadFiles = async () => {
     const response = await axios.get('http://localhost:2000/' + file.name)
-    if (response.data) dispatch({ type: 'SET_FILE', file: response.data })
+    if (response.data) dispatch({ type: 'SET_FILE', file: response.data.file })
   }
 
   return (
@@ -178,7 +176,7 @@ const FileInfo = () => {
                           Delete
                         </DropdownItem>
                         <DropdownItem
-                          href={`http://localhost:2000/download/${file.filename}`}
+                          href={`http://localhost:2000/download?filename=${file.filename}`}
                         >
                           Download
                         </DropdownItem>
