@@ -49,7 +49,7 @@ const Videos = (props) => {
 
   const renameFile = async () => {
     const response = await axios.put(
-      `http://localhost:2000/edit?id=${id}&name=${newFilename}`,
+      `http://localhost:2000/edit?oldFilename=${name}&newFilename=${newFilename}`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -85,30 +85,30 @@ const Videos = (props) => {
     const timer = setTimeout(() => {
       setShow(false)
       setMessage('')
-    }, 4000)
+    }, 3000)
     return () => clearTimeout(timer)
   }
 
   useEffect(() => {
     loadFiles()
+    
+    console.log(videos)
   }, [])
 
   const loadFiles = async () => {
     setLoading(true)
     const response = await axios.get('http://localhost:2000/videos')
     setLoading(false)
-    if (response.data) setVideos(response.data)
+    if (response.data) setVideos(response.data.files)
   }
 
   const deleteFile = async (id, name) => {
-    const stringId = JSON.stringify(id)
-    const final = stringId.replace(/"/g, '')
     const DeleteFile = await axios.delete(
-      'http://localhost:2000/video/' + final
+      `http://localhost:2000/delete?filename=${name}`
     )
     if (!DeleteFile) return
     setVideos(videos.filter((video) => video._id !== id))
-    setMessage('Video has been deleted')
+    setMessage('Video deleted successfully')
     displayMessage()
     const log = await axios.post(
       'http://localhost:2000/log?task=deleted&color=red&file=' + name
@@ -117,12 +117,12 @@ const Videos = (props) => {
   }
 
   const reverseDate = ({ video }) => {
-    let date = video.uploadDate.split('T')[0]
+    let date = video.createdAt.split('T')[0]
     return date
   }
 
   const getSize = ({ video }) => {
-    let size = video.length
+    let size = video.size
     let newSize = size / 1000000
     if (newSize > 1000) {
       newSize = size / 1000000000
@@ -134,7 +134,8 @@ const Videos = (props) => {
   }
 
   const splitTime = ({ video }) => {
-    let date = video.uploadDate.split('T')[1]
+    let date = video.createdAt.split('T')[1]
+    console.log(date)
     let time = date.split('.')[0]
     let hour = time.split(':')[0]
     let min = time.split(':')[1]
@@ -148,6 +149,7 @@ const Videos = (props) => {
     return final
   }
 
+  console.log(videos)
   return (
     <>
       {show && message === 'Video has been deleted' && (
@@ -258,7 +260,7 @@ const Videos = (props) => {
                           </td>
                           <td>
                             <span className='mb-0 text-sm'>
-                              {video.contentType.split('/')[1]}
+                              {video.type.split('/')[1]}
                             </span>
                           </td>
                           <td className='text-right'>
@@ -292,8 +294,9 @@ const Videos = (props) => {
                                 >
                                   Delete
                                 </DropdownItem>
+                                {/* Fix download with function rather than link */}
                                 <DropdownItem
-                                  href={`http://localhost:2000/download/${video.filename}`}
+                                  href={`http://localhost:2000/download?filename=${video.filename}`}
                                 >
                                   Download
                                 </DropdownItem>

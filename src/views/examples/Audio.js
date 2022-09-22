@@ -49,7 +49,7 @@ const Audio = (props) => {
 
   const renameFile = async () => {
     const response = await axios.put(
-      `http://localhost:2000/edit?id=${id}&name=${newFilename}`,
+      `http://localhost:2000/edit?oldFilename=${name}&newFilename=${newFilename}`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -97,14 +97,12 @@ const Audio = (props) => {
     setLoading(true)
     const response = await axios.get('http://localhost:2000/audio')
     setLoading(false)
-    if (response.data) setAudios(response.data)
+    if (response.data) setAudios(response.data.files)
   }
 
   const deleteFile = async (id, name) => {
-    const stringId = JSON.stringify(id)
-    const final = stringId.replace(/"/g, '')
     const DeleteFile = await axios.delete(
-      'http://localhost:2000/audio/' + final
+      `http://localhost:2000/delete?filename=${name}`
     )
     if (!DeleteFile) return
     setAudios(audios.filter((audio) => audio._id !== id))
@@ -116,12 +114,12 @@ const Audio = (props) => {
   }
 
   const reverseDate = ({ audio }) => {
-    let date = audio.uploadDate.split('T')[0]
+    let date = audio.createdAt.split('T')[0]
     return date
   }
 
   const getSize = ({ audio }) => {
-    let size = audio.length
+    let size = audio.size
     let newSize = size / 1000000
     if (newSize > 1000) {
       newSize = size / 1000000000
@@ -133,7 +131,7 @@ const Audio = (props) => {
   }
 
   const splitTime = ({ audio }) => {
-    let date = audio.uploadDate.split('T')[1]
+    let date = audio.createdAt.split('T')[1]
     let time = date.split('.')[0]
     let hour = time.split(':')[0]
     let min = time.split(':')[1]
@@ -257,7 +255,7 @@ const Audio = (props) => {
                           </td>
                           <td>
                             <span className='mb-0 text-sm'>
-                              {audio.contentType.split('/')[1]}
+                              {audio.type.split('/')[1]}
                             </span>
                           </td>
                           <td className='text-right'>

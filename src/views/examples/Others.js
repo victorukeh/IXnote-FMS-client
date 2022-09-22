@@ -154,7 +154,7 @@ const Others = (props) => {
       {show && message === 'File has been deleted' && (
         <div className='div'>
           <Alert color='success' className='alert'>
-            <strong>Success!</strong> {message}
+            <steong>Success!</steong> {message}
           </Alert>
         </div>
       )}
