@@ -6,7 +6,7 @@ import './upload.css'
 import './alert.css'
 
 const Upload = () => {
-  const [selectedFile, setSelectedFile] = useState(undefined)
+  const [selectedFiles, setSelectedFiles] = useState(undefined)
   const [progress, setProgress] = useState(0)
   const [message, setMessage] = useState('')
   const [show, setShow] = useState(true)
@@ -18,13 +18,14 @@ const Upload = () => {
   }
 
   function onChangeHandler(event) {
-    setSelectedFile(event.target.files[0])
+    setSelectedFiles(event.target.files)
   }
 
   function onClickHandler() {
-    setProgress(0)
+    for (const file of selectedFiles){
+      setProgress(0)
     const data = new FormData()
-    data.append('file', selectedFile)
+    data.append('file', file)
     axios
       .post('http://localhost:2000/upload', data, {
         onUploadProgress: (event) => {
@@ -34,19 +35,21 @@ const Upload = () => {
       .then(async (res) => {
         setMessage('File Uploaded Successfully')
         displayMessage()
-        setSelectedFile(undefined)
+        setSelectedFiles(undefined)
         const log = await axios.post(
           'http://localhost:2000/log?task=uploaded&color=blue&file=' +
-            selectedFile.name
+            file.name
         )
         if (!log) return
       })
       .catch(() => {
         setProgress(0)
         setMessage('Could not upload the file!')
-        setSelectedFile(undefined)
+        setSelectedFiles(undefined)
         displayMessage()
       })
+    }
+    
   }
 
   return (
@@ -80,7 +83,7 @@ const Upload = () => {
                     <form method='post' action='#' id='#'>
                       <div className='form-group files'>
                         <label>Upload Your File </label>
-                        {selectedFile && (
+                        {selectedFiles && (
                           <div className='progress'>
                             <div
                               className='progress-bar progress-bar-info progress-bar-striped'
@@ -99,6 +102,7 @@ const Upload = () => {
                           className='form-control'
                           name='file'
                           onChange={(event) => onChangeHandler(event)}
+                          multiple
                         />
                         <br />
                       </div>
